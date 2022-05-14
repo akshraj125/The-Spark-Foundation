@@ -1,0 +1,377 @@
+================================svm============================
+import pandas as pd
+
+# Loading Dataset
+url='https://raw.githubusercontent.com/Sairaj9604/ML_Dataset/main/SVM.csv'
+data=pd.read_csv(url)
+data.head()
+
+data.drop(['sales','salary'],axis=1,inplace=True)
+
+X=data.drop('left',axis=1)
+Y=data['left']
+
+from sklearn.model_selection import train_test_split
+x_train,x_test,y_train,y_test=train_test_split(X,Y,test_size=0.3,random_state=42)
+
+from sklearn.svm import SVC
+classifier = SVC(kernel='linear', random_state = 42)
+classifier.fit(x_train,y_train)
+
+
+y_pred = classifier.predict(x_test)
+
+from sklearn.metrics import confusion_matrix,accuracy_score
+print(accuracy_score(y_test,y_pred)*100)
+
+# Confusion Matrix
+cm=confusion_matrix(y_test,y_pred)
+print(cm)
+
+
+
+
+
+
+
+
+
+=====================linear regression=====================================
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns 
+from sklearn.linear_model import LinearRegression
+
+url = 'https://media.githubusercontent.com/media/neurospin/pystatsml/master/datasets/birthwt.csv'
+df = pd.read_csv(url)
+df.head()
+
+df.shape
+
+
+df.corr()
+
+age = df["age"]
+age = age.to_numpy()
+birthwt = df["bwt"]
+birthwt = birthwt.to_numpy()
+
+lr = LinearRegression()
+
+
+age = age.reshape(-1,1)
+lr.fit(age,birthwt)
+
+y = lr.predict(age)
+
+plt.scatter(age,birthwt,c= "green")
+plt.plot(age,y,c='red')
+plt.xlabel("Age")
+plt.ylabel("Birth weight(g)")
+plt.show()
+
+
+plt.scatter(age,birthwt/1000,c ="green")
+plt.xlabel("Age")
+plt.ylabel("Birth weight(Kg)")
+
+
+motherswt = df["lwt"]
+motherswt =motherswt.to_numpy()
+# converting in grams to pounds
+birthwt = birthwt/454
+
+
+lr = LinearRegression()
+
+motherswt =motherswt.reshape(-1,1)
+lr.fit(motherswt,birthwt)
+
+
+z = lr.predict(motherswt)
+
+
+plt.scatter(motherswt,birthwt,c= "darkblue")
+plt.plot(motherswt,z,c='red')
+plt.xlabel("Mother's weight")
+plt.ylabel("Birth weight")
+plt.show()
+
+
+
+plt.xlabel("Mother's weight")
+plt.ylabel("Birth weight (Kg)")
+plt.scatter(motherswt,birthwt,c = "darkblue")
+
+
+========================k means==================================
+
+import numpy as np
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+url='https://raw.githubusercontent.com/Sairaj9604/ML_Dataset/main/Iris.csv'
+df = pd.read_csv(url)
+df.head()
+
+
+df.info()
+
+df.describe()
+
+x = df.iloc[:, [1, 2, 3, 4]].values
+
+#Finding the optimum number of clusters for k-means classification
+from sklearn.cluster import KMeans
+wcss = []
+
+for i in range(1, 11):
+    kmeans = KMeans(n_clusters = i, init = 'k-means++', max_iter = 300, n_init = 10, random_state = 0)
+    kmeans.fit(x)
+    wcss.append(kmeans.inertia_)
+    
+#Plotting the results onto a line graph, allowing us to observe 'The elbow'
+plt.plot(range(1, 11), wcss)
+plt.title('The elbow method')
+plt.xlabel('Number of clusters')
+plt.ylabel('WCSS') #within cluster sum of squares
+plt.show()
+
+#Applying kmeans to the dataset / Creating the kmeans classifier
+kmeans = KMeans(n_clusters = 3, init = 'k-means++', max_iter = 300, n_init = 10, random_state = 0)
+y_kmeans = kmeans.fit_predict(x)
+
+
+#Visualising the clusters
+plt.scatter(x[y_kmeans == 0, 0], x[y_kmeans == 0, 1], s = 100, c = 'black', label = 'Iris-setosa')
+plt.scatter(x[y_kmeans == 1, 0], x[y_kmeans == 1, 1], s = 100, c = 'blue', label = 'Iris-versicolour')
+plt.scatter(x[y_kmeans == 2, 0], x[y_kmeans == 2, 1], s = 100, c = 'green', label = 'Iris-virginica')
+
+#Plotting the centroids of the clusters
+plt.scatter(kmeans.cluster_centers_[:, 0], kmeans.cluster_centers_[:,1], s = 100, c = 'yellow', label = 'Centroids')
+
+plt.legend()
+
+
+===================knn======================================
+import pandas as pd
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score,confusion_matrix
+
+
+url='https://raw.githubusercontent.com/Sairaj9604/ML_Dataset/main/Iris.csv'
+df=pd.read_csv(url)
+df.head()
+
+
+df.shape
+
+df.drop('Id',axis=1,inplace=True)
+
+
+X=df.drop('Species',axis=1)
+Y=df['Species']
+
+X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size = 0.2, random_state=42)
+knn = KNeighborsClassifier(n_neighbors=5)
+ 
+knn.fit(X_train, y_train)
+pred=knn.predict(X_test)
+
+cm=confusion_matrix(y_test,pred)
+print(cm)
+
+
+print(accuracy_score(y_test,pred))
+
+
+======================nn visualizer====================================
+
+%tensorflow_version 1.x
+
+import tensorflow as tf
+import numpy as np
+import warnings
+
+
+!pip3 install ann_visualizer
+
+
+from ann_visualizer.visualize import ann_viz
+from graphviz import Source
+
+from keras.models import Sequential
+from keras.layers import Dense
+
+
+training_data = np.array([[0,0],[0,1],[1,0],[1,1]], "float32")
+target_data = np.array([[0],[1],[1],[0]], "float32")
+
+model = Sequential()
+model.add(Dense(4, input_dim=2, activation='sigmoid'))
+model.add(Dense(1, activation='sigmoid'))
+model.compile(loss='mean_squared_error', optimizer='adam', metrics=['accuracy'])
+
+ann_viz(model, title="Simple XOR Classifier")
+
+
+graph_source = Source.from_file('network.gv')
+
+graph_source
+
+
+model.get_weights()
+
+
+===========================mba==================================
+
+import pandas as pd
+from mlxtend.frequent_patterns import apriori
+from mlxtend.frequent_patterns import association_rules
+
+df = pd.read_excel('http://archive.ics.uci.edu/ml/machine-learning-databases/00352/Online%20Retail.xlsx')
+df.head()
+
+
+
+df['Description'] = df['Description'].str.strip()
+df.dropna(axis=0, subset=['InvoiceNo'], inplace=True)
+df['InvoiceNo'] = df['InvoiceNo'].astype('str')
+df = df[~df['InvoiceNo'].str.contains('C')]
+
+df.info()
+
+basket = (df[df['Country'] =="France"]
+          .groupby(['InvoiceNo', 'Description'])['Quantity']
+          .sum().unstack().reset_index().fillna(0)
+          .set_index('InvoiceNo'))
+
+
+basket.head()
+
+def encode_units(x):
+    if x <= 0:
+        return 0
+    if x >= 1:
+        return 1
+basket_sets = basket.applymap(encode_units)
+basket_sets.drop('POSTAGE', inplace=True, axis=1)
+
+
+frequent_itemsets = apriori(basket_sets, min_support=0.07, use_colnames=True)
+
+
+rules = association_rules(frequent_itemsets, metric="lift", min_threshold=1)
+rules.head()
+
+rules[ (rules['lift'] >= 6) & (rules['confidence'] >= 0.8) ]
+
+
+basket['ALARM CLOCK BAKELIKE GREEN'].sum()
+
+
+basket['ALARM CLOCK BAKELIKE RED'].sum()
+
+
+
+
+
+
+====================optical character recognizer==============
+
+
+# importing libraries
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import tensorflow as tf
+from tensorflow import keras
+
+# importing dataset
+digit_mnist = keras.datasets.mnist
+(x_train_full, y_train_full), (x_test, y_test) = digit_mnist.load_data()
+
+x_train_full.shape
+
+plt.imshow(x_train_full[0])
+
+
+# feature scaling
+x_train_n = x_train_full / 255.
+x_test_n = x_test / 255.
+
+# Train_Valid_Test Split
+x_valid, x_train = x_train_n[:6000],x_train_n[6000:]
+y_valid, y_train = y_train_full[:6000],y_train_full[6000:]
+x_test = x_test_n
+
+np.random.seed(42)
+tf.random.set_seed(42)
+
+
+
+# Model Building
+model = keras.models.Sequential()
+model.add(keras.layers.Flatten(input_shape=[28,28]))
+model.add(keras.layers.Dense(200,activation='relu'))
+model.add(keras.layers.Dense(100,activation='relu'))
+model.add(keras.layers.Dense(10,activation='softmax'))
+
+
+model.compile(loss='sparse_categorical_crossentropy',
+             metrics=['accuracy'],
+             optimizer = 'sgd')
+
+
+# model training
+model_r = model.fit(x_train,y_train,epochs=60,
+                         validation_data=(x_valid,y_valid))
+
+
+model.evaluate(x_test,y_test)
+
+# Val-loss
+pd.DataFrame(model_r.history).plot(figsize=(8,5))
+plt.grid(True)
+plt.gca().set_ylim(0,1)
+plt.show()
+
+# predicting first five Digits
+x_new=x_test[:5]
+
+y_proba = model.predict(x_new)
+y_proba.round(2)
+
+predict_x = model.predict(x_new) 
+classes_x=np.argmax(predict_x,axis=1)
+
+# Output
+classes_x
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
